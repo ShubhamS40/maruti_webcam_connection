@@ -1,42 +1,68 @@
 # ==============================================================================
-#  MARUTI USB WEBCAM DMS - REQUIRED DEPENDENCIES (CROSS-PLATFORM)
+#  MARUTI USB WEBCAM DMS - DEPENDENCIES (PYTHON 3.9+ COMPATIBLE)
 # ==============================================================================
-#  Windows: pip install -r requirements.txt
-#  Mac M1/M2/M3 (ARM):  pip install -r requirements.txt
-#  Mac Intel:  pip install -r requirements.txt
+#  - Tested for Python 3.9, 3.10, 3.11, 3.12
+#  - Works on: Windows / Mac Intel / Mac M1-M4 (ARM) / Linux
+#  - Quantron QPC-1020 HD Webcam: Standard UVC USB camera, Plug&Play with OpenCV
 # ==============================================================================
 
-# ---------- Pip upgrade (recommended first) ----------
-# Run: pip install --upgrade pip setuptools wheel
+# ==============================================================================
+#  PIP UPGRADE (RUN THIS FIRST, BEFORE requirements.txt)
+#  python3 -m ensurepip --upgrade
+#  python3 -m pip install --upgrade pip setuptools wheel
+# ==============================================================================
 
-# ---------- Core AI / ML Libraries ----------
+# ------------------------------------------------------------------------------
+#  CORE AI / TENSORFLOW (VERSION LOCKED FOR PYTHON 3.9 COMPAT)
+#  Mac ARM (M1/M2/M3/M4): tensorflow-macos + tensorflow-metal (GPU accel)
+#  Mac Intel / Windows / Linux: plain tensorflow (works out of box)
+# ------------------------------------------------------------------------------
 tensorflow==2.16.1
-tensorflow-macos==2.16.1; sys_platform == "darwin" and platform_machine == "arm64"
-tensorflow-metal==1.1.0; sys_platform == "darwin" and platform_machine == "arm64"
-keras>=3.14.0,<4.0.0
 
-# ---------- Face Landmarks ----------
+# --- Mac Apple Silicon (ARM64) ONLY: auto-installed via environment marker ---
+tensorflow-macos==2.16.1; sys_platform == "darwin" and platform_machine == "arm64"
+# tensorflow-metal needs Py 3.10+ on most wheels. For 3.9 on ARM, we skip it
+# (CPU fallback works fine; if you need GPU upgrade Python to 3.11 first)
+# tensorflow-metal==1.1.0; sys_platform == "darwin" and platform_machine == "arm64" and python_version >= "3.10"
+
+# --- Keras: keep <3.14 for Python 3.9 (newer Keras requires Py 3.10+) ---
+keras>=2.15.0,<3.14.0
+
+# ------------------------------------------------------------------------------
+#  FACE LANDMARK DETECTION (MediaPipe Face Mesh - 468 landmarks)
+# ------------------------------------------------------------------------------
 mediapipe==0.10.14
 
-# ---------- Computer Vision / Image Processing ----------
-opencv-python==4.11.0.86
-opencv-contrib-python==4.11.0.86
-pillow==11.1.0
+# ------------------------------------------------------------------------------
+#  COMPUTER VISION  (OpenCV handles Quantron QPC-1020 HD via UVC driver)
+#  - Your Quantron QPC-1020 HD: 1920x1080 @30fps, USB UVC class -> zero config
+#  - On Mac: AVFoundation backend auto-selected in run_dms_webcam.py
+# ------------------------------------------------------------------------------
+opencv-python==4.10.0.84
+opencv-contrib-python==4.10.0.84
+pillow>=10.0.0,<12.0.0
 
-# ---------- Numerical / Scientific ----------
-numpy==1.26.4
-scipy==1.15.1
-protobuf==4.25.3
-h5py==3.12.1
+# ------------------------------------------------------------------------------
+#  NUMERICAL / SCIENTIFIC (NumPy <1.27 for TF 2.16 compat)
+# ------------------------------------------------------------------------------
+numpy>=1.24.0,<1.27.0
+scipy>=1.11.0,<1.16.0
+protobuf>=4.25.0,<5.0.0
+h5py>=3.10.0,<4.0.0
 
-# ---------- Audio / Alerts ----------
-pygame==2.6.1
+# ------------------------------------------------------------------------------
+#  AUDIO ALERTS (Cross-platform: winsound on Win, pygame everywhere else)
+# ------------------------------------------------------------------------------
+pygame>=2.5.0,<3.0.0
 
-# ---------- Visualization ----------
-matplotlib==3.10.0
+# ------------------------------------------------------------------------------
+#  VISUALIZATION (Optional - for graphs/debug plots)
+# ------------------------------------------------------------------------------
+matplotlib>=3.7.0,<3.11.0
 
-# ---------- (Optional) FastAPI Web UI ----------
-# If you want to use the web interface (app.py), install these:
+# ------------------------------------------------------------------------------
+#  OPTIONAL: FastAPI Web UI (commented by default)
+# ------------------------------------------------------------------------------
 # fastapi==0.115.0
 # uvicorn==0.30.6
 # jinja2==3.1.4
