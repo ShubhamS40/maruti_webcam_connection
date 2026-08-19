@@ -1,0 +1,35 @@
+# ==============================================================================
+#  MARUTI USB WEBCAM DMS - REQUIRED DEPENDENCIES
+# ==============================================================================
+#  Install: pip install -r requirements.txt
+# ==============================================================================
+
+# ---------- Core AI / ML Libraries ----------
+tensorflow==2.16.1
+tensorflow-intel==2.16.1
+keras>=3.14.0
+mediapipe==0.10.14
+
+# ---------- Computer Vision / Image Processing ----------
+opencv-python==4.11.0.86
+opencv-contrib-python==4.11.0.86
+pillow==11.1.0
+
+# ---------- Numerical / Scientific ----------
+numpy==1.26.4
+scipy==1.15.1
+protobuf==4.25.3
+h5py==3.12.1
+
+# ---------- Audio / Alerts ----------
+pygame==2.6.1
+
+# ---------- Visualization ----------
+matplotlib==3.10.0
+
+# ---------- (Optional) FastAPI Web UI ----------
+# If you want to use the web interface (app.py), install these:
+# fastapi==0.115.0
+# uvicorn==0.30.6
+# jinja2==3.1.4
+# python-multipart==0.0.9

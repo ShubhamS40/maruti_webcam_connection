@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>AI Driver Monitoring System</title>
+
+    <link rel="stylesheet" href="/static/style.css">
+
+</head>
+
+<body>
+
+    <div class="main-container">
+
+        <div class="left-panel">
+
+            <div class="title-box">
+
+                <h1>AI DRIVER MONITORING SYSTEM</h1>
+
+                <p>
+                    Real-Time Fatigue Detection • Edge AI • Computer Vision
+                </p>
+
+            </div>
+
+            <div class="video-container">
+
+                <img src="/video_feed" id="video-feed">
+
+            </div>
+
+        </div>
+
+        <div class="right-panel">
+
+            <div class="card">
+
+                <h2>System Controls</h2>
+
+                <label>Alert Sensitivity</label>
+
+                <input
+                    type="range"
+                    min="1"
+                    max="10"
+                    value="5"
+                    id="fps-slider"
+                >
+
+                <p id="fps-value">
+                    Alert Seconds: 5
+                </p>
+
+            </div>
+
+            <div class="card">
+
+                <h2>System Status</h2>
+
+                <div id="status-box">
+
+                    READY
+
+                </div>
+
+            </div>
+
+            <div class="card">
+
+                <h2>Features</h2>
+
+                <ul>
+
+                    <li>EAR Monitoring</li>
+
+                    <li>MAR Detection</li>
+
+                    <li>PERCLOS Tracking</li>
+
+                    <li>Head Pose Estimation</li>
+
+                    <li>Brightness Adaptation</li>
+
+                    <li>Risk Fusion Engine</li>
+
+                    <li>Temporal Stabilization</li>
+
+                    <li>Audio Alert System</li>
+
+                </ul>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <script src="/static/app.js"></script>
+
+</body>
+
+</html>
