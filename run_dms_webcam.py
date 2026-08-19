@@ -13,6 +13,8 @@ import sys
 import time
 import math
 import warnings
+import subprocess
+import platform
 from collections import deque
 
 import cv2
@@ -55,46 +57,157 @@ OUTPUT_DIR_FULL = os.path.join(DMS_DIR, OUTPUT_DIR)
 os.makedirs(OUTPUT_DIR_FULL, exist_ok=True)
 
 
-def _get_capture_backend():
-    """Return (cv2 backend flag, description) based on OS."""
-    if os.name == "nt":
-        return cv2.CAP_DSHOW, "DirectShow (Windows)"
-    if sys.platform == "darwin":
-        return cv2.CAP_AVFOUNDATION, "AVFoundation (Mac)"
-    return 0, "Default (Linux/Other)"
+_OS = platform.system()
 
 
-def _open_camera(idx):
-    """Open camera with OS-appropriate backend + fallback to default."""
-    backend, desc = _get_capture_backend()
-    if backend != 0:
+def _build_backend_list():
+    """Return list of (name, backend_id) to try, OS-specific ordering."""
+    if _OS == "Darwin":
+        return [
+            ("CAP_ANY (auto-detect)", cv2.CAP_ANY),
+            ("CAP_AVFOUNDATION (Mac native)", cv2.CAP_AVFOUNDATION),
+        ]
+    if _OS == "Windows":
+        return [
+            ("CAP_DSHOW (DirectShow USB)", cv2.CAP_DSHOW),
+            ("CAP_ANY (auto-detect)", cv2.CAP_ANY),
+            ("CAP_MSMF (MediaFoundation)",
+             getattr(cv2, "CAP_MSMF", 1400)),
+        ]
+    return [
+        ("CAP_ANY (auto-detect)", cv2.CAP_ANY),
+        ("CAP_V4L2 (V4L2 Linux)", getattr(cv2, "CAP_V4L2", 200)),
+    ]
+
+
+BACKENDS_TO_TRY = _build_backend_list()
+
+
+def _try_open_with_retries(index: int, backend_name: str, backend_id: int,
+                           retries: int = 4, sleep_between: float = 0.7):
+    """Try to open camera + probe a frame (Mac TCC dialog may take seconds)."""
+    last_err = None
+    for attempt in range(1, retries + 1):
         try:
-            cap = cv2.VideoCapture(idx, backend)
-            if cap is not None and cap.isOpened():
-                return cap, desc
-        except Exception:
-            pass
-    cap = cv2.VideoCapture(idx)
-    return cap, "Default"
+            cap = cv2.VideoCapture(index, backend_id)
+        except Exception as e:
+            last_err = f"VideoCapture exception: {e}"
+            time.sleep(sleep_between)
+            continue
+        if cap is None or not cap.isOpened():
+            try:
+                cap.release()
+            except Exception:
+                pass
+            last_err = "cap.isOpened()=False"
+            time.sleep(sleep_between)
+            continue
+        ok, frame = cap.read()
+        if not ok or frame is None or frame.size == 0:
+            last_err = f"opened but cap.read()={getattr(frame, 'shape', None)}"
+            try:
+                cap.release()
+            except Exception:
+                pass
+            time.sleep(sleep_between)
+            continue
+        return cap, attempt, None
+    return None, retries, last_err
+
+
+def _run_mac_diagnostics():
+    """On Mac, tell the user exactly what's connected + TCC fix."""
+    if _OS != "Darwin":
+        return
+    print("\n" + "=" * 72)
+    print("  🍎  MAC CAMERA DIAGNOSTIC (running)")
+    print("=" * 72)
+    print("\n--- system_profiler SPCameraDataType ---")
+    try:
+        out = subprocess.check_output(
+            ["system_profiler", "SPCameraDataType"],
+            stderr=subprocess.STDOUT, text=True, timeout=15)
+        print(out)
+    except Exception as e:
+        print(f"  (couldn't run system_profiler: {e})")
+
+    print("--- TCC PERMISSION FIX (run THESE in Terminal if camera is STATUS 0): ---")
+    print("  1. Reset Camera permission DB:")
+    print("       tccutil reset Camera")
+    print("  2. QUIT Terminal/IDE fully (Cmd+Q), reopen project folder.")
+    print("  3. Run: python3 test_webcam.py")
+    print("       → Click ALLOW when Mac prompts 'Camera access'.")
+    print("  4. Verify toggle:")
+    print("       System Settings → Privacy & Security → Camera")
+    print("       → ON for Terminal / your IDE (VS Code/PyCharm/iTerm)")
+    print()
 
 
 def probe_webcam():
-    print("\n[WEBCAM] Probing available USB/webcam devices...")
-    best_idx = -1
-    for idx in range(0, 5):
-        cap, _ = _open_camera(idx)
+    """Ultra-robust USB webcam finder. Returns (cap, index, backend_name)."""
+    print("\n" + "=" * 72)
+    print("  📷  ROBUST USB WEBCAM PROBER (Quantron QPC-1020 HD ready)")
+    print("=" * 72)
+    print(f"  OS           : {_OS}")
+    print(f"  OpenCV       : {cv2.__version__}")
+    print(f"  Backends     : {[b[0] for b in BACKENDS_TO_TRY]}")
+
+    if _OS == "Darwin":
+        _run_mac_diagnostics()
+
+    max_idx = 9
+    # Pass 1: OpenCV default backend (no explicit backend flag)
+    print(f"\n--- Pass 1/2: OpenCV default backend, indices 0..{max_idx} ---")
+    for i in range(max_idx + 1):
+        try:
+            cap = cv2.VideoCapture(i)
+        except Exception:
+            cap = None
         if cap is not None and cap.isOpened():
             ok, frame = cap.read()
-            cap.release()
-            if ok and frame is not None:
-                print(f"[WEBCAM] Found camera at index {idx}")
-                if best_idx == -1:
-                    best_idx = idx
-    if best_idx == -1:
-        print("[WEBCAM] WARNING: No camera found via probe, trying index 0...")
-        best_idx = 0
-    print(f"[WEBCAM] Using camera index: {best_idx}\n")
-    return best_idx
+            if ok and frame is not None and frame.size > 0:
+                print(f"  ✅ PASS1 idx={i} DEFAULT backend shape={frame.shape}")
+                return cap, i, "OpenCV_default"
+        if cap is not None:
+            try:
+                cap.release()
+            except Exception:
+                pass
+
+    # Pass 2: Explicit backends in OS-preferred order, with retries per combo
+    print(f"\n--- Pass 2/2: Explicit backends with retries, indices 0..{max_idx} ---")
+    for bname, bid in BACKENDS_TO_TRY:
+        for i in range(max_idx + 1):
+            print(f"  Probing idx={i:2d}  {bname} ...", flush=True, end=" ")
+            cap, attempts, err = _try_open_with_retries(i, bname, bid)
+            if cap is not None:
+                ok, frame = cap.read()
+                shape = getattr(frame, "shape", None) if ok else None
+                print(f"✅ WORKING  attempts={attempts}  shape={shape}")
+                return cap, i, bname
+            print(f"❌ fail  ({err})")
+
+    # ---- No camera found ---------------------------------------------------
+    print("\n" + "=" * 72)
+    print("  ❌  NO CAMERA COULD BE OPENED.")
+    print("=" * 72)
+    if _OS == "Darwin":
+        print("""
+ 🍎 TROUBLESHOOTING (copy-paste into Terminal):
+
+   Step A: Reset TCC so Mac will PROMPT you again:
+       tccutil reset Camera
+
+   Step B: QUIT & RE-OPEN Terminal/IDE (Cmd+Q), then try:
+       python3 test_webcam.py
+       → Click ALLOW on the permission dialog!
+
+   Step C: If still fails, check USB enumeration:
+       system_profiler SPCameraDataType
+       Expected: "Quantron QPC-1020 HD" or "USB Video Class Video"
+       If missing: try different USB port / cable / hub (direct port preferred)
+""")
+    sys.exit(1)
 
 
 def draw_simple_hud(frame, state, state_color, ear, mar, cnn_score, risk, attention,
