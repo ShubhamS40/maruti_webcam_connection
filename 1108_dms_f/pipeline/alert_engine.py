@@ -5,15 +5,31 @@ Eval window (Eval Sec trackbar) gates initial fatigue evidence before state mach
 can accumulate tier counters.
 """
 
+import os
+import sys
 import threading
 import time
+import subprocess
+
+import numpy as np
+
+AUDIO_AVAILABLE = False
+AUDIO_BACKEND = "none"
 
 try:
     import winsound
-
     AUDIO_AVAILABLE = True
+    AUDIO_BACKEND = "winsound"
 except ImportError:
-    AUDIO_AVAILABLE = False
+    pass
+
+try:
+    import pygame
+    pygame.mixer.init()
+    AUDIO_AVAILABLE = True
+    AUDIO_BACKEND = "pygame"
+except Exception:
+    pass
 
 from pipeline.temporal import ConsecutiveCounter
 
@@ -32,8 +48,40 @@ class AlertEngine:
             return
         self._alarm_playing = True
         try:
-            if AUDIO_AVAILABLE:
+            if AUDIO_BACKEND == "winsound":
                 winsound.Beep(2500, int(duration_ms))
+            elif AUDIO_BACKEND == "pygame":
+                try:
+                    freq_hz = 2500
+                    duration_s = duration_ms / 1000.0
+                    sample_rate = 44100
+                    n_samples = int(sample_rate * duration_s)
+                    t = np.linspace(0, duration_s, n_samples, False)
+                    wave = 0.5 * np.sin(2 * np.pi * freq_hz * t)
+                    audio_stereo = np.column_stack((wave, wave))
+                    sound_array = (audio_stereo * 32767).astype(np.int16)
+                    sound = pygame.sndarray.make_sound(sound_array)
+                    sound.play()
+                    time.sleep(duration_s)
+                    sound.stop()
+                except Exception:
+                    pass
+            elif sys.platform == "darwin":
+                try:
+                    subprocess.run(
+                        ["afplay", "/System/Library/Sounds/Glass.aiff"],
+                        check=False, timeout=5,
+                    )
+                except Exception:
+                    pass
+            elif sys.platform.startswith("linux"):
+                try:
+                    subprocess.run(
+                        ["play", "-n", "synth", f"{duration_ms/1000}", "sine", "2500"],
+                        check=False, timeout=5,
+                    )
+                except Exception:
+                    pass
         except Exception:
             pass
         finally:

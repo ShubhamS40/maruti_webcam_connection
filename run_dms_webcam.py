@@ -55,20 +55,41 @@ OUTPUT_DIR_FULL = os.path.join(DMS_DIR, OUTPUT_DIR)
 os.makedirs(OUTPUT_DIR_FULL, exist_ok=True)
 
 
+def _get_capture_backend():
+    """Return (cv2 backend flag, description) based on OS."""
+    if os.name == "nt":
+        return cv2.CAP_DSHOW, "DirectShow (Windows)"
+    if sys.platform == "darwin":
+        return cv2.CAP_AVFOUNDATION, "AVFoundation (Mac)"
+    return 0, "Default (Linux/Other)"
+
+
+def _open_camera(idx):
+    """Open camera with OS-appropriate backend + fallback to default."""
+    backend, desc = _get_capture_backend()
+    if backend != 0:
+        try:
+            cap = cv2.VideoCapture(idx, backend)
+            if cap is not None and cap.isOpened():
+                return cap, desc
+        except Exception:
+            pass
+    cap = cv2.VideoCapture(idx)
+    return cap, "Default"
+
+
 def probe_webcam():
     print("\n[WEBCAM] Probing available USB/webcam devices...")
     best_idx = -1
     for idx in range(0, 5):
-        cap = cv2.VideoCapture(idx, cv2.CAP_DSHOW) if os.name == "nt" else cv2.VideoCapture(idx)
-        if cap.isOpened():
+        cap, _ = _open_camera(idx)
+        if cap is not None and cap.isOpened():
             ok, frame = cap.read()
             cap.release()
             if ok and frame is not None:
                 print(f"[WEBCAM] Found camera at index {idx}")
                 if best_idx == -1:
                     best_idx = idx
-        else:
-            cap.release()
     if best_idx == -1:
         print("[WEBCAM] WARNING: No camera found via probe, trying index 0...")
         best_idx = 0
@@ -239,12 +260,13 @@ def main():
     camera_idx = probe_webcam()
 
     print(f"[5/6] Opening USB Webcam (index {camera_idx})...")
-    cap = cv2.VideoCapture(camera_idx, cv2.CAP_DSHOW) if os.name == "nt" else cv2.VideoCapture(camera_idx)
-    if not cap.isOpened():
-        cap = cv2.VideoCapture(camera_idx)
-    if not cap.isOpened():
-        print(f"ERROR: Could not open camera at index {camera_idx}. Check USB connection.")
+    cap, backend_used = _open_camera(camera_idx)
+    if cap is None or not cap.isOpened():
+        print(f"ERROR: Could not open camera at index {camera_idx}. Check USB cable and camera permissions.")
+        if sys.platform == "darwin":
+            print("  [MAC TIP] Go to System Settings → Privacy & Security → Camera → Enable Terminal/your IDE")
         return
+    print(f"[INFO] Camera backend: {backend_used}")
 
     cap.set(cv2.CAP_PROP_FRAME_WIDTH, FRAME_W)
     cap.set(cv2.CAP_PROP_FRAME_HEIGHT, FRAME_H)

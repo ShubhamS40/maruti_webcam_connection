@@ -1,13 +1,21 @@
 # ==============================================================================
-#  MARUTI USB WEBCAM DMS - REQUIRED DEPENDENCIES
+#  MARUTI USB WEBCAM DMS - REQUIRED DEPENDENCIES (CROSS-PLATFORM)
 # ==============================================================================
-#  Install: pip install -r requirements.txt
+#  Windows: pip install -r requirements.txt
+#  Mac M1/M2/M3 (ARM):  pip install -r requirements.txt
+#  Mac Intel:  pip install -r requirements.txt
 # ==============================================================================
+
+# ---------- Pip upgrade (recommended first) ----------
+# Run: pip install --upgrade pip setuptools wheel
 
 # ---------- Core AI / ML Libraries ----------
 tensorflow==2.16.1
-tensorflow-intel==2.16.1
-keras>=3.14.0
+tensorflow-macos==2.16.1; sys_platform == "darwin" and platform_machine == "arm64"
+tensorflow-metal==1.1.0; sys_platform == "darwin" and platform_machine == "arm64"
+keras>=3.14.0,<4.0.0
+
+# ---------- Face Landmarks ----------
 mediapipe==0.10.14
 
 # ---------- Computer Vision / Image Processing ----------
