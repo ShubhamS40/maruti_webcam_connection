@@ -1,0 +1,144 @@
+# ==============================================================================
+#           MARUTI DMS - GIT IGNORE (Avoid Bulky Push)
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# 1. PYTHON CACHE / BYTECODE (SABSE ZAROORI - har run pe ban jaate hain)
+# ------------------------------------------------------------------------------
+__pycache__/
+**/__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+*.egg
+dist/
+build/
+.eggs/
+pip-wheel-metadata/
+
+# ------------------------------------------------------------------------------
+# 2. LARGE GENERATED OUTPUTS (SABSE BULKY - ~56MB ka output.avi + csv logs)
+# ------------------------------------------------------------------------------
+1108_dms_f/outputs/
+outputs/
+**/outputs/
+*.avi
+*.mp4
+*.mov
+*.mkv
+*.csv
+!**/test_video.mp4
+
+# ------------------------------------------------------------------------------
+# 3. BACKUPS (Old versions - zaroorat nahi hai push karne ki)
+# ------------------------------------------------------------------------------
+1108_dms_f/backups/
+backups/
+**/backups/
+*.bak
+*.backup
+
+# ------------------------------------------------------------------------------
+# 4. SAMPLE TEST VIDEOS (Download kar sakte hain baad mein)
+# ------------------------------------------------------------------------------
+1108_dms_f/videos/
+videos/
+**/videos/
+
+# ------------------------------------------------------------------------------
+# 5. LARGE MODEL FILES (~31MB total)
+#    NOTE: Models DMS ke liye ZAROORI hain, lekin bulky hain.
+#    Agar aap Git LFS use karte hain to inko mat ignore karo.
+#    Agar nahi, aur models baad mein download kar sakte ho, uncomment below:
+# ------------------------------------------------------------------------------
+# 1108_dms_f/models/drowsy_model_full.h5
+# 1108_dms_f/models/drowsy_model.tflite
+# **/models/*.h5
+# **/models/*.tflite
+# **/models/*.hdf5
+# **/models/*.pb
+# **/models/*.pth
+# **/models/*.pt
+
+# ------------------------------------------------------------------------------
+# 6. VIRTUAL ENVIRONMENTS (BOHOT BULKY hote hain - 500MB+)
+# ------------------------------------------------------------------------------
+.venv/
+venv/
+env/
+ENV/
+.python-version
+.python-version
+.conda/
+*.conda
+
+# ------------------------------------------------------------------------------
+# 7. AUDIO ASSETS (Alarm / WAV files - chhote hain, lekin agar chhodo to uncomment)
+# ------------------------------------------------------------------------------
+# **/static/*.wav
+# **/assets/*.wav
+# **/assets/*.webp
+# **/assets/*.png
+
+# ------------------------------------------------------------------------------
+# 8. IDE / EDITOR FILES (Kisi ka bhi personal config - team se alag)
+# ------------------------------------------------------------------------------
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+*.sublime-project
+*.sublime-workspace
+
+# ------------------------------------------------------------------------------
+# 9. OS FILES (Windows / Mac auto-generated junk)
+# ------------------------------------------------------------------------------
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+.fseventsd
+
+# ------------------------------------------------------------------------------
+# 10. LOGS & TEMP
+# ------------------------------------------------------------------------------
+*.log
+logs/
+**/logs/
+.tmp/
+temp/
+*.tmp
+*.temp
+
+# ------------------------------------------------------------------------------
+# 11. JUPYTER CHECKPOINTS
+# ------------------------------------------------------------------------------
+.ipynb_checkpoints/
+**/.ipynb_checkpoints/
+*.ipynb
+
+# ------------------------------------------------------------------------------
+# 12. ENVIRONMENT / SECRETS (Kabhi bhi push mat karo)
+# ------------------------------------------------------------------------------
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+*.p12
+secrets.*
+credentials.*
