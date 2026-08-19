@@ -1,0 +1,66 @@
+# ==============================================================================
+#  MARUTI USB WEBCAM DMS - STRICT PYTHON 3.9 LOCKED DEPENDENCIES
+# ==============================================================================
+#  This file is for PYTHON 3.9 users on MAC. The JAX "match self.layout"
+#  SyntaxError happens when newer JAX/ML packages (Python 3.10+ only) get
+#  mixed into a 3.9 environment via caching / resolver bugs.
+#
+#  EVERYTHING HERE IS PINNED TO VERSIONS THAT NATIVE SUPPORT PYTHON 3.9
+#  AND USE OLD PYTHON 3.9 COMPAT SYNTAX (NO match-case / NO walrus hacks).
+#
+#  BEFORE INSTALLING: DELETE OLD VENV! (commands below)
+#    rm -rf venv
+#    python3.9 -m venv venv
+#    source venv/bin/activate
+#    python3 -m pip install --upgrade "pip==24.0" "setuptools==69.5.1" "wheel==0.42.0"
+#    python3 -m pip install -r requirements.txt
+# ==============================================================================
+
+# ---------- CORE AI (STRICT PY 3.9 COMPAT BINARY WHEELS) ----------
+tensorflow-macos==2.15.0; sys_platform == "darwin" and platform_machine == "arm64"
+tensorflow==2.15.0; sys_platform == "darwin" and platform_machine != "arm64"
+tensorflow==2.15.0; sys_platform == "win32"
+tensorflow==2.15.0; sys_platform.startswith("linux")
+
+# TensorFlow 2.15 pulls Keras 2.15 internally. We pin explicitly to 2.x:
+keras==2.15.0
+
+# CRITICAL: JAX must be <0.4.24 on Python 3.9. 0.4.24+ uses match-case (Py3.10+).
+# Also, jaxlib needs the matching pinned version.
+jax==0.4.23
+jaxlib==0.4.23
+
+# CRITICAL: ml-dtypes <0.4.0 on Py 3.9 (0.4.0 uses match-case / newer syntax)
+ml-dtypes==0.3.2
+
+# CRITICAL: absl-py pin (newer ones can break TF 2.15)
+absl-py==2.1.0
+
+# CRITICAL: numpy / scipy / protobuf versions MATCH TF 2.15 tested matrix
+numpy==1.26.4
+scipy==1.11.4
+protobuf==4.25.3
+h5py==3.10.0
+
+# ---------- FACE LANDMARKS ----------
+mediapipe==0.10.14
+flatbuffers==23.5.26
+
+# ---------- COMPUTER VISION (OpenCV 4.9 works on all Py3.9) ----------
+opencv-python==4.9.0.80
+opencv-contrib-python==4.9.0.80
+pillow==10.4.0
+
+# ---------- AUDIO ALERTS ----------
+pygame==2.5.2
+
+# ---------- VISUALIZATION ----------
+matplotlib==3.8.4
+
+# ---------- CFFI / SYSTEM LIB LOCK (macOS wheels sometimes need this) ----------
+cffi==1.16.0
+sounddevice==0.4.7; sys_platform == "darwin"
+
+# ==============================================================================
+#  END OF PY 3.9 LOCKED DEPS
+# ==============================================================================
