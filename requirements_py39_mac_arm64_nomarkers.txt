@@ -25,11 +25,20 @@ tensorflow-metal==1.1.0
 keras==2.15.0
 
 # ---------- JAX ECOSYSTEM (CRITICAL PY 3.9 LOCKS - NO match-case SYNTAX) ----------
-# jax >= 0.4.24 uses Python 3.10 match-case inside so we MUST pin <0.4.24
+#
+# DEPENDENCY RULES (non-negotiable):
+#   1. tensorflow-macos 2.15.0 REQUIRES ml-dtypes~=0.2.0  (CANNOT use 0.3.x)
+#   2. jax/jaxlib 0.4.23 works with ml-dtypes >= 0.2.0  (good, compatible)
+#   3. ml-dtypes MUST stay <0.4.0  (0.4.0+ uses Python 3.10 match-case syntax)
+#
+# So the ONLY safe combination is:
+#   ml-dtypes == 0.2.0   (satisfies TF 2.15 AND no match-case)
+#   jax      == 0.4.23   (compatible with ml-dtypes 0.2.0 AND Py3.9 syntax)
+#   jaxlib   == 0.4.23
+#
+ml-dtypes==0.2.0
 jax==0.4.23
 jaxlib==0.4.23
-# ml-dtypes >= 0.4.0 uses match-case too; keep 0.3.x on Py 3.9
-ml-dtypes==0.3.2
 
 # ---------- GOOGLE / TF CORE DEPS (MATCH TF 2.15 TESTED MATRIX) ----------
 absl-py==2.1.0
