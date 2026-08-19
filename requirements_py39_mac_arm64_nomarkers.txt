@@ -1,0 +1,101 @@
+# ==============================================================================
+#  MARUTI USB WEBCAM DMS - PYTHON 3.9 MAC (M1/M2/M3/M4 ARM) - NO MARKERS
+# ==============================================================================
+#  FOR: Apple Silicon Mac (arm64) + Python 3.9
+#  DO NOT USE on Windows / Linux / Intel Mac (separate file needed for those)
+#
+#  This file has ZERO platform markers to avoid pip 24/25/26 tokenizer bugs.
+#  Every version here is locked to wheels that natively support Python 3.9
+#  and do NOT use Python 3.10+ match-case syntax (fixes JAX SyntaxError).
+#
+#  FULL CLEAN INSTALL STEPS (RUN THESE BEFORE THIS FILE):
+#    deactivate 2>/dev/null || true
+#    rm -rf venv ~/Library/Caches/pip
+#    python3 -m venv venv
+#    source venv/bin/activate
+#    python3 -m pip install --no-cache-dir "pip==24.0" "setuptools==69.5.1" "wheel==0.42.0"
+#    python3 -m pip install --no-cache-dir -r requirements_py39_mac_arm64_nomarkers.txt
+# ==============================================================================
+
+# ---------- CORE AI / TENSORFLOW (Mac ARM + Python 3.9) ----------
+tensorflow-macos==2.15.0
+tensorflow-metal==1.1.0
+
+# TensorFlow 2.15 internally ships Keras 2. We lock the standalone package too.
+keras==2.15.0
+
+# ---------- JAX ECOSYSTEM (CRITICAL PY 3.9 LOCKS - NO match-case SYNTAX) ----------
+# jax >= 0.4.24 uses Python 3.10 match-case inside so we MUST pin <0.4.24
+jax==0.4.23
+jaxlib==0.4.23
+# ml-dtypes >= 0.4.0 uses match-case too; keep 0.3.x on Py 3.9
+ml-dtypes==0.3.2
+
+# ---------- GOOGLE / TF CORE DEPS (MATCH TF 2.15 TESTED MATRIX) ----------
+absl-py==2.1.0
+flatbuffers==23.5.26
+numpy==1.26.4
+scipy==1.11.4
+protobuf==4.25.3
+h5py==3.10.0
+opt-einsum==3.3.0
+gast==0.5.4
+astunparse==1.6.3
+termcolor==2.4.0
+wrapt==1.14.1
+google-pasta==0.2.0
+libclang==16.0.6
+grpclib==0.4.7
+grpcio==1.60.1
+tensorboard==2.15.2
+tensorflow-estimator==2.15.0
+boto3==1.34.51
+botocore==1.34.51
+s3transfer==0.10.0
+urllib3==2.0.7
+certifi==2024.2.2
+charset-normalizer==3.3.2
+idna==3.6
+requests==2.31.0
+Markdown==3.5.2
+MarkupSafe==2.1.5
+werkzeug==3.0.1
+oauthlib==3.2.2
+requests-oauthlib==1.3.1
+pyasn1==0.5.1
+pyasn1-modules==0.3.0
+rsa==4.9
+cachetools==5.3.2
+google-auth==2.27.0
+google-auth-oauthlib==1.2.0
+six==1.16.0
+packaging==23.2
+
+# ---------- FACE LANDMARK DETECTION ----------
+mediapipe==0.10.14
+
+# ---------- COMPUTER VISION ----------
+opencv-python==4.9.0.80
+opencv-contrib-python==4.9.0.80
+pillow==10.4.0
+
+# ---------- AUDIO ALERTS (Cross-platform) ----------
+pygame==2.5.2
+
+# ---------- VISUALIZATION ----------
+matplotlib==3.8.4
+contourpy==1.2.0
+cycler==0.12.1
+fonttools==4.49.0
+kiwisolver==1.4.5
+pyparsing==3.1.1
+python-dateutil==2.8.2
+
+# ---------- SYSTEM / C LIBS ----------
+cffi==1.16.0
+pycparser==2.21
+sounddevice==0.4.7
+
+# ==============================================================================
+#  END OF MAC ARM64 PY 3.9 LOCKED DEPS
+# ==============================================================================
