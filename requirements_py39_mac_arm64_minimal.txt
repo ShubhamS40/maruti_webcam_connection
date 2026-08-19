@@ -1,0 +1,77 @@
+# ==============================================================================
+#  MARUTI USB WEBCAM DMS - MINIMAL PY 3.9 MAC ARM (M1/M2/M3/M4)
+# ==============================================================================
+#  This file keeps ONLY the direct top-level imports of the DMS project,
+#  plus the 3 CRITICAL transitive deps that cause Python 3.9 SyntaxError
+#  (jax / jaxlib / ml-dtypes) because those use "match case" syntax in
+#  newer versions. Everything else is left for pip's resolver to pick the
+#  correct compatible wheels automatically.
+#
+#  RULES APPLIED:
+#  1. NEVER pin sub-dependencies manually (that causes botocore<->urllib3
+#     style circular conflicts). Pip resolver knows transitive constraints.
+#  2. ONLY pin versions for packages that:
+#       a) are directly imported in OUR code, OR
+#       b) have a known Python 3.9 incompatibility (match-case syntax)
+#  3. tensorflow-macos 2.15 is chosen because:
+#       - it has native Mac ARM wheels for Python 3.9
+#       - it ships with its own known-working set of transitive deps
+#  4. grpclib was removed too (no code imports it; unnecessary source build)
+# ==============================================================================
+
+# ==============================================================================
+#  CRITICAL: PYTHON 3.9 INCOMPATIBILITY FENCE
+#  These versions DO NOT contain the "match case" syntax that would cause
+#  SyntaxError: invalid syntax at wheel compile time on Python 3.9.
+#  ml-dtypes 0.2.0 also satisfies tensorflow-macos 2.15's "~= 0.2.0" rule.
+# ==============================================================================
+ml-dtypes==0.2.0
+jax==0.4.23
+jaxlib==0.4.23
+
+# ==============================================================================
+#  CORE AI FRAMEWORK
+# ==============================================================================
+tensorflow-macos==2.15.0
+tensorflow-metal==1.1.0
+keras==2.15.0
+
+# ==============================================================================
+#  FACE LANDMARK DETECTION (MediaPipe Face Mesh 468 landmarks)
+# ==============================================================================
+mediapipe==0.10.14
+
+# ==============================================================================
+#  COMPUTER VISION (OpenCV 4.9 works with Quantron QPC-1020 HD USB webcam)
+# ==============================================================================
+opencv-python==4.9.0.80
+opencv-contrib-python==4.9.0.80
+pillow==10.4.0
+
+# ==============================================================================
+#  NUMERICAL (Numpy range safe for TF 2.15 + Py 3.9 + no match-case syntax)
+# ==============================================================================
+numpy>=1.24.0,<1.27.0
+scipy>=1.11.0,<1.12.0
+protobuf>=4.25.0,<5.0.0
+h5py>=3.10.0,<3.11.0
+
+# ==============================================================================
+#  AUDIO ALERTS (cross-platform beep engine; used by alert_engine.py)
+# ==============================================================================
+pygame==2.5.2
+
+# ==============================================================================
+#  VISUALIZATION (matplotlib needed only for debug graphs; optional but kept)
+# ==============================================================================
+matplotlib>=3.8.0,<3.9.0
+
+# ==============================================================================
+#  SYSTEM UTIL (sounddevice for Mac audio fallback; cffi its dep)
+# ==============================================================================
+sounddevice==0.4.7
+cffi>=1.16.0,<1.17.0
+
+# ==============================================================================
+#  END OF MINIMAL DEPS - EVERYTHING ELSE PIP RESOLVES AUTOMATICALLY
+# ==============================================================================
